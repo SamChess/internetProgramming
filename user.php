@@ -1,6 +1,7 @@
 <?php 
 	include "crud.php";
 	include "authenticator.php";
+
 	class User implements Crud, Authenticator{
 		private $user_id;
 		private $first_name;
@@ -9,20 +10,39 @@
 
 		private $username;
 		private $password;
+		private $timestamp;
+		private $offset;
 
-		function __construct($first_name, $last_name, $city_name,$username,$password)
+		function __construct($first_name, $last_name, $city_name,$username,$password,$timestamp,$offset)
 		{
 			$this->first_name = $first_name;
 			$this->last_name = $last_name;
 			$this->city_name = $city_name;
 			$this->username = $username;
 			$this->password = $password;
+			$this->timestamp = $timestamp;
+			$this->offset = $offset;
 		}
 
 		public static function create(){
 			$instance = new self();
 			return $instance;
 		}
+		public function setTimeStamp($timestamp){
+			$this->timestamp=$timestamp;
+			
+		}
+		public function getTimeStamp(){
+			return $timestamp;
+		}
+		public function setOffset($offset){
+			$this->offset=$offset;
+			
+		}
+		public function getOffset(){
+			return $offset;
+		}
+
 
 		public function setUsername($username){
 			$this->username = $username;
@@ -33,7 +53,7 @@
 		}
 
 		public function setPassword($password){
-			$this->username = $username;
+			$this->password = $password;
 		}
 
 		public function getPassword(){
@@ -55,12 +75,15 @@
 			$uname = $this->username;
 			$this->hashPassword();
 			$pass = $this->password;
+			$timestamp = $this->timestamp;
+			$offset = $this->offset;
 
 			if ($this->isUserExist($uname)==true){
 				return false;
 			}
+			$this->conn = mysqli_connect(DB_SERVER,DB_USER,DB_PASS,DB_NAME) or die("Error:".mysqli_error());
 
-			 $res=mysqli_query($this->conn, "INSERT INTO user(first_name,last_name,user_city,username,password) VALUES('$fn','$ln','$city','$uname','$pass')") or die("Error".mysqli_connect_error($conn));
+			 $res=mysqli_query($this->conn, "INSERT INTO user(first_name,last_name,user_city,username,password,timestamping,offset) VALUES('$fn','$ln','$city','$uname','$pass','$timestamp','$offset')") or die("Error".mysqli_connect_error($conn));
 		     return $res;
 		}
 

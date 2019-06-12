@@ -1,6 +1,8 @@
 <?php 
 	include "crud.php";
 	include "authenticator.php";
+	include_once 'DBConnector.php';
+
 
 	class User implements Crud, Authenticator{
 		private $user_id;
@@ -13,7 +15,7 @@
 		private $timestamp;
 		private $offset;
 
-		function __construct($first_name, $last_name, $city_name,$username,$password,$timestamp,$offset)
+		function __construct ($first_name, $last_name, $city_name,$username,$password,$timestamp,$offset)
 		{
 			$this->first_name = $first_name;
 			$this->last_name = $last_name;
@@ -25,7 +27,11 @@
 		}
 
 		public static function create(){
-			$instance = new self();
+			//$instance = new self();
+			//return $instance;
+			$reflection = new ReflectionClass(__CLASS__);
+			$instance = $reflection->newInstanceWithoutConstructor();
+
 			return $instance;
 		}
 		public function setTimeStamp($timestamp){
@@ -145,6 +151,7 @@
 
 			while ($row=mysqli_fetch_array($res)){
 				if (password_verify($this->getPassword(), $row['password']) && $this->getUsername()==$row['username']){
+					$this->setUserId($row['id']);
 					$found = true;
 				}
 			}
@@ -160,14 +167,16 @@
 		public function createUserSession(){
 			session_start();
 			$_SESSION['username'] = $this->getUsername();
+			$_SESSION['id'] = $this->getUserId();
 		}
-
+		
 		public function logout(){
 			session_start();
 			unset($_SESSION['username']);
 			session_destroy();
 			header("Location:lab.php");
 		}
+
 
 		public function isUserExist($username){
 
@@ -182,6 +191,26 @@
             return false;
 	
 			}
+			public function readUserApiKey($user){
+			$this->DBConnect();
+
+			$res = mysqli_query($this->con->conn, "SELECT api_key FROM api_keys WHERE user_id = $user") or die("Error " . mysqli_error($this->con->conn));
+
+			$this->DBClose();
+
+			if (mysqli_num_rows($res)) {
+				return mysqli_fetch_array($res)['api_key'];
+			}
+			
+			return false;
+		}
+		public function DBConnect() {
+			$this->con = new DBConnector;
+		}
+		public function DBClose() {
+			$this->con->closeDatabase();
+		}
+
 			
 		}
 

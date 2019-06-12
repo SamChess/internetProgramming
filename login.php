@@ -13,16 +13,16 @@
 		$password = $_POST['password'];
 
 		// $instance = User::create();
-		$instance = new User('','','',$username,$password);
-		// $instance->setPassword($password);
-		// $instance->setUsername($username);
+		$instance = new User('','','',$username,$password,'','');
+		 $instance->setPassword($password);
+		$instance->setUsername($username);
 
 		if ($instance->isPasswordCorrect()){
-			$instance->login();
-
-			$con->closeDatabase();
-
-			$instance->createUserSession();
+			
+		$instance->createUserSession();
+		$instance->login();
+		$con->closeDatabase();
+		
 		} else {
 			$con->closeDatabase();
 			header("Location:login.php");
